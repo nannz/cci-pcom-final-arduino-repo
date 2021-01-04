@@ -19,19 +19,23 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance
 
 /**********************************/
 
-const int timerLedPin1 = 6;//the led connect to pin 6//the red led
-boolean ledOn = false;
+const int timerLedPin1 = 4;//the led connect to pin 6//the red led
+const int timerLedPin2 = 5;
+const int timerLedPin3 = 6;
 /**********************************/
-int switchState1 = 0;         // variable for reading the pushbutton status
-int lastSwitchState1 = 0;
+
 
 //set timer virables.
 int dayRecord = 0;
 int monthRecord = 0;
 int hourRecord = 0;
 int minuteRecord = 0;
-int secondRecord = 0;
+int secondRecord1 = 0;
+int secondRecord2 = 0;
+int secondRecord3 = 0;
 bool timerState_1 = false; //timer state for card 1
+bool timerState_2 = false;
+bool timerState_3 = false;
 
 
 //my cards:
@@ -42,7 +46,7 @@ int part1 = 138;//I convert the nuidPICC[0] into integer use int(), that works!
 int part2 = 116;
 int part3 = 177;
 int part4 = 18;
-int card1[] = {138, 116, 177, 18};
+int card1[] = {138, 116, 177, 18};//1 min
 int card2[] = {186, 68, 13, 17};
 int card3[] = {138, 153, 182, 18};
 
@@ -54,6 +58,8 @@ void setup() {
   mfrc522.PCD_Init();
 
   pinMode(timerLedPin1,OUTPUT);
+  pinMode(timerLedPin2,OUTPUT);
+  pinMode(timerLedPin3,OUTPUT);
 }
 
 //virables for storing RFID tag values and flags
@@ -119,12 +125,26 @@ void loop() {
   //Serial.println(int(id.uidByte[0]));
   if (int(id.uidByte[0]) == card1[0] && int(id.uidByte[1]) == card1[1] && int(id.uidByte[2]) == card1[2] && int(id.uidByte[3]) == card1[3]) {
     Serial.println("card 1 sensed!");
-    Serial.println("start the timer...");
+    Serial.println("start the timer 1...");
     timerState_1 = true;
     //record the current time
-    hourRecord = hour();
-    minuteRecord = minute();
-    secondRecord = second();
+    //hourRecord = hour();
+    //minuteRecord = minute();
+    secondRecord1 = second();
+  }
+   if (int(id.uidByte[0]) == card2[0] && int(id.uidByte[1]) == card2[1] && int(id.uidByte[2]) == card2[2] && int(id.uidByte[3]) == card2[3]) {
+    Serial.println("card 2 sensed!");
+    Serial.println("start the timer 2...");
+    timerState_2 = true;
+    //record the current time
+    secondRecord2 = second();
+  }
+  if (int(id.uidByte[0]) == card3[0] && int(id.uidByte[1]) == card3[1] && int(id.uidByte[2]) == card3[2] && int(id.uidByte[3]) == card3[3]) {
+    Serial.println("card 3 sensed!");
+    Serial.println("start the timer 3...");
+    timerState_3 = true;
+    //record the current time
+    secondRecord3 = second();
   }
 
   //print the new car on serial monitor with its hex value.
@@ -162,15 +182,34 @@ void loop() {
       
       //if card is still there and the timer is on
       if (timerState_1 == true) {
-        //check if time is up
-        if ((second() - secondRecord == 10) ) {//set the timer as 10s for testing. 
+        //check if time is up=======================
+        if ((second() - secondRecord1 == 10) ) {//set the timer as 10s for testing. 
           Serial.println("time's up! turn off the timer 1!");
            digitalWrite(timerLedPin1,HIGH);
         }
       } else {
         digitalWrite(timerLedPin1,LOW);
-        minuteRecord = 0;
-        secondRecord = 0;
+        secondRecord1 = 0;
+      }
+      if (timerState_2 == true) {
+        //check if time is up=======================
+        if ((second() - secondRecord2 == 6) ) {//set the timer as 10s for testing. 
+          Serial.println("time's up! turn off the timer 2!");
+           digitalWrite(timerLedPin2,HIGH);
+        }
+      } else {
+        digitalWrite(timerLedPin2,LOW);
+        secondRecord2 = 0;
+      }
+      if (timerState_3 == true) {
+        //check if time is up=======================
+        if ((second() - secondRecord3 == 5) ) {//set the timer as 10s for testing. 
+          Serial.println("time's up! turn off the timer 3!");
+           digitalWrite(timerLedPin3,HIGH);
+        }
+      } else {
+        digitalWrite(timerLedPin3,LOW);
+        secondRecord3 = 0;
       }
       
     } else {
@@ -186,6 +225,16 @@ void loop() {
         digitalWrite(timerLedPin1,LOW);
         timerState_1 = false;
       }
+       if (timerState_2 == true) { //if the timer is on
+        Serial.println("just stopped the timer 2!");
+        digitalWrite(timerLedPin2,LOW);
+        timerState_2 = false;
+      }
+      if (timerState_3 == true) { //if the timer is on
+        Serial.println("just stopped the timer 3!");
+        digitalWrite(timerLedPin3,LOW);
+        timerState_3 = false;
+      }
       //********************************
     }
   }
@@ -196,6 +245,8 @@ void loop() {
   Serial.println("CardRemoved");
   digitalWrite(Green, LOW);
   digitalWrite(timerLedPin1,LOW);
+  digitalWrite(timerLedPin2,LOW);
+  digitalWrite(timerLedPin3,LOW);
   delay(50); //change value if you want to read cards faster
 
   mfrc522.PICC_HaltA();
