@@ -1,5 +1,13 @@
+//This code is for the {fridge reminder} part for CCI PCOM Term 1 - Final Project
+//fully coded by Nan Zhao. 
+
+//used RTC to sense time
+//used RFID module to sense different types of food tags
+//one LED on when reading a card
+//another three LEDs on when the food is on Best-Date-Before.
+//Different kinds of food has different timer period. For demo, the timers are set only for a few seconds. 
+
 //used board Arduino UNO
-//doesn't work on Arduino nano 33 BLE
 
 //=======RFID=========
 #include <SPI.h>
@@ -48,7 +56,7 @@ int part1 = 138;//I convert the nuidPICC[0] into integer use int(), that works!
 int part2 = 116;
 int part3 = 177;
 int part4 = 18;
-int card1[] = {138, 116, 177, 18};//1 min
+int card1[] = {138, 116, 177, 18};
 int card2[] = {186, 68, 13, 17};
 int card3[] = {138, 153, 182, 18};
 
@@ -200,10 +208,6 @@ void loop() {
       //if card is still there and the timer is on
       if (timerState_1 == true) {
         //check if time is up=======================
-        
-        //Serial.print("secondRecord1: ");Serial.println(secondRecord1);
-        Serial.print("current Second: ");Serial.println(currentSecond);
-        //问题在这里，这里current second不更新。 
         
         if ((currentSecond - secondRecord1 == 5) ) {//set the timer as 5s for testing.
           Serial.println("time's up! turn off the timer 1!");
